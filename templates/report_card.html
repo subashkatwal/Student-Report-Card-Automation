@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Grade Sheet</title>
+<style>
+body { font-family: Arial, sans-serif; font-size: 12px; margin: 20px; }
+.center { text-align: center; }
+.header-box { margin: 10px 0; }
+.info-row { display: flex; justify-content: space-between; margin: 3px 0; }
+.info-row div { width: 48%; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+table, th, td { border: 1px solid #000; }
+th, td { padding: 4px; text-align: center; vertical-align: middle; }
+td.subject { text-align: left; padding-left: 6px; }
+.gpa-box { margin-top: 10px; font-weight: bold; text-align: center; }
+.result-row { display: flex; justify-content: space-between; margin-top: 8px; font-weight: bold; }
+.sign-row { display: flex; justify-content: space-between; margin-top: 30px; text-align: center; }
+.sign-row div { width: 30%; }
+.footer { margin-top: 20px; font-size: 11px; }
+.note { margin-top: 10px; font-size: 10px; }
+</style>
+</head>
+<body>
+
+<div class="center">
+  <h3>GRADE SHEET</h3>
+</div>
+
+<div class="header-box">
+  <div class="info-row">
+    <div><strong>Name:</strong>{{ $json['Student Name '] }} </div>
+    <div><strong>Registration No:</strong>{{ $json['Registration Number '] }}  </div>
+  </div>
+  <div class="info-row">
+    <div><strong>Date of Birth:</strong> {{ $json['Date of Birth '] }}  </div>
+    <div><strong>Symbol No:</strong>{{ $json['Symbol Number '] }} </div>
+  </div>
+  <div class="info-row">
+    <div><strong>Grade:</strong> {{ $json.Grade }}</div>
+    <div><strong>Annual Examination:</strong> {{ $json['Annual Examination Year '] }} </div>
+  </div>
+  <div class="info-row">
+    <div><strong>Conducted In:</strong> {{ $json['Conducted In (BS Year / AD Year) '] }} </div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>S.N.</th>
+      <th>Subjects</th>
+      <th>Marks</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td class="subject">Physics</td><td> {{ $json['Physics Marks '] }}    </td></tr>
+    <tr><td>2</td><td class="subject">Chemistry</td><td> {{ $json['Chemistry Marks '] }}    </td></tr>
+    <tr><td>3</td><td class="subject">Computer</td><td>{{ $json['Computer Marks '] }}     </td></tr>
+    <tr><td>4</td><td class="subject">Nepali</td><td> {{ $json['Nepali Marks '] }}    </td></tr>
+    <tr><td>5</td><td class="subject">English</td><td> {{ $json['English Marks '] }}     </td></tr>
+    <tr><td>6</td><td class="subject">Social</td><td> {{ $json['Social Marks'] }}      </td></tr>
+  </tbody>
+</table>
+
+<div class="gpa-box">
+  GRADE POINT AVERAGE (GPA): {{ $json.Grade }}
+</div>
+
+<div class="result-row">
+  <!-- <div>Result:{{ $json['  Result (Pass/Fail/Distinction)   '] }}    </div> -->
+  <div>Rank:{{ $json['  Rank  '] }} </div>
+  <div>Attendance:{{ $json['  Attendance  '] }} <span> Days</span></div>
+</div>
+
+<div class="sign-row">
+  <div>
+    _______________________<br>
+    Prepared By<br>
+    Exam Department
+  </div>
+  <div>
+    _______________________<br>
+    Checked By<br>
+    Ayushi Joshi
+  </div>
+  <div>
+    _______________________<br>
+    Head Teacher<br>
+    Shubham Dorje
+  </div>
+</div>
+
+<div class="footer">
+  <div><strong>Date of Issue:</strong>{{ $json.issue_date }} </div>
+  <div class="note">
+    <p><strong>Note:</strong></p>
+    <p>One credit hour equals 32 working hours.</p>
+    <p><strong>Internal (IN):</strong> Participation, practical / project work and terminal examinations.</p>
+    <p><strong>Theory (TH):</strong> Written external examination.</p>
+    <p>ABS = Absent, NG = Not Graded</p>
+  </div>
+</div>
+
+</body>
+</html>
