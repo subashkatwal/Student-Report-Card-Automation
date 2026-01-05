@@ -1,0 +1,21 @@
+{
+  "Student Name ": "Rohan Sharma",
+  "Registration Number ": "REG-2081-0456",
+  "Date of Birth ": "2007-04-18",
+  "Symbol Number ": "0812345",
+  "Grade": "3.62",
+  "Annual Examination Year ": "2081",
+  "Conducted In (BS Year / AD Year) ": "2081 BS / 2024 AD",
+
+  "Physics Marks ": 82,
+  "Chemistry Marks ": 78,
+  "Computer Marks ": 91,
+  "Nepali Marks ": 74,
+  "English Marks ": 80,
+  "Social Marks": 76,
+
+  "  Rank  ": "5",
+  "  Attendance  ": 182,
+
+  "issue_date": "2024-06-15"
+}
