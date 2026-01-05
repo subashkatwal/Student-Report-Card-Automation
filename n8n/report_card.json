@@ -1,0 +1,338 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Loop through all incoming rows from Google Sheets\nitems.forEach(item => {\n    // Read marks from form\n    const physics = parseFloat(item.json['Physics Marks'] || 0);\n    const chemistry = parseFloat(item.json['Chemistry Marks'] || 0);\n    const computer = parseFloat(item.json['Computer Marks'] || 0);\n    const nepali = parseFloat(item.json['Nepali Marks'] || 0);\n    const english = parseFloat(item.json['English Marks'] || 0);\n    const social = parseFloat(item.json['Social Marks'] || 0);\n\n    // Assign subject marks to HTML placeholders\n    item.json['physics_marks'] = physics;\n    item.json['chemistry_marks'] = chemistry;\n    item.json['computer_marks'] = computer;\n    item.json['nepali_marks'] = nepali;\n    item.json['english_marks'] = english;\n    item.json['social_marks'] = social;\n\n    // Calculate GPA (assuming 100 marks scale mapped to 4 GPA)\n    const gpas = [physics, chemistry, computer, nepali, english, social].map(m => (m / 100) * 4);\n    const averageGPA = gpas.reduce((a, b) => a + b, 0) / gpas.length;\n    item.json['gpa'] = parseFloat(averageGPA.toFixed(2));\n\n    // Assign grade based on Nepal +2 grading system\n    let grade = '';\n    if (averageGPA >= 3.6) grade = 'A+';\n    else if (averageGPA >= 3.2) grade = 'A';\n    else if (averageGPA >= 2.8) grade = 'B+';\n    else if (averageGPA >= 2.4) grade = 'B';\n    else if (averageGPA >= 2.0) grade = 'C+';\n    else if (averageGPA >= 1.6) grade = 'C';\n    else grade = 'D';\n    item.json['grade'] = grade;\n\n    // Assign result based on minimum GPA\n    const isPass = gpas.every(m => m >= 1.6); // below 1.6 = fail\n    item.json['result'] = isPass ? 'Pass' : 'Fail';\n\n    // Map other placeholders from form\n    item.json['rank'] = item.json['Rank'] || '';\n    item.json['attendance'] = item.json['Attendance'] || '';\n    item.json['issue_date'] = item.json['Issue Date'] || '';\n\n    // Map header fields\n    item.json['student_name'] = item.json['Student Name'] || '';\n    item.json['registration_no'] = item.json['Registration Number'] || '';\n    item.json['date_of_birth'] = item.json['Date of Birth'] || '';\n    item.json['symbol_no'] = item.json['Symbol Number'] || '';\n    item.json['exam_year'] = item.json['Annual Examination Year'] || '';\n    \n    // Split Conducted In field to BS and AD\n    if (item.json['Conducted In (BS Year / AD Year)']) {\n        const parts = item.json['Conducted In (BS Year / AD Year)'].split('/');\n        item.json['bs_year'] = parts[0].trim();\n        item.json['ad_year'] = parts[1] ? parts[1].trim() : '';\n    } else {\n        item.json['bs_year'] = '';\n        item.json['ad_year'] = '';\n    }\n});\n\n// Return processed rows\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        -64
+      ],
+      "id": "0e10d6d0-148b-4afc-acdb-081ffe5973b4",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<title>Grade Sheet</title>\n<style>\nbody { font-family: Arial, sans-serif; font-size: 12px; margin: 20px; }\n.center { text-align: center; }\n.header-box { margin: 10px 0; }\n.info-row { display: flex; justify-content: space-between; margin: 3px 0; }\n.info-row div { width: 48%; }\ntable { width: 100%; border-collapse: collapse; margin-top: 10px; }\ntable, th, td { border: 1px solid #000; }\nth, td { padding: 4px; text-align: center; vertical-align: middle; }\ntd.subject { text-align: left; padding-left: 6px; }\n.gpa-box { margin-top: 10px; font-weight: bold; text-align: center; }\n.result-row { display: flex; justify-content: space-between; margin-top: 8px; font-weight: bold; }\n.sign-row { display: flex; justify-content: space-between; margin-top: 30px; text-align: center; }\n.sign-row div { width: 30%; }\n.footer { margin-top: 20px; font-size: 11px; }\n.note { margin-top: 10px; font-size: 10px; }\n</style>\n</head>\n<body>\n\n<div class=\"center\">\n  <h3>GRADE SHEET</h3>\n</div>\n\n<div class=\"header-box\">\n  <div class=\"info-row\">\n    <div><strong>Name:</strong>{{ $json['Student Name '] }} </div>\n    <div><strong>Registration No:</strong>{{ $json['Registration Number '] }}  </div>\n  </div>\n  <div class=\"info-row\">\n    <div><strong>Date of Birth:</strong> {{ $json['Date of Birth '] }}  </div>\n    <div><strong>Symbol No:</strong>{{ $json['Symbol Number '] }} </div>\n  </div>\n  <div class=\"info-row\">\n    <div><strong>Grade:</strong> {{ $json.Grade }}</div>\n    <div><strong>Annual Examination:</strong> {{ $json['Annual Examination Year '] }} </div>\n  </div>\n  <div class=\"info-row\">\n    <div><strong>Conducted In:</strong> {{ $json['Conducted In (BS Year / AD Year) '] }} </div>\n  </div>\n</div>\n\n<table>\n  <thead>\n    <tr>\n      <th>S.N.</th>\n      <th>Subjects</th>\n      <th>Marks</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr><td>1</td><td class=\"subject\">Physics</td><td> {{ $json['Physics Marks '] }}    </td></tr>\n    <tr><td>2</td><td class=\"subject\">Chemistry</td><td> {{ $json['Chemistry Marks '] }}    </td></tr>\n    <tr><td>3</td><td class=\"subject\">Computer</td><td>{{ $json['Computer Marks '] }}     </td></tr>\n    <tr><td>4</td><td class=\"subject\">Nepali</td><td> {{ $json['Nepali Marks '] }}    </td></tr>\n    <tr><td>5</td><td class=\"subject\">English</td><td> {{ $json['English Marks '] }}     </td></tr>\n    <tr><td>6</td><td class=\"subject\">Social</td><td> {{ $json['Social Marks'] }}      </td></tr>\n  </tbody>\n</table>\n\n<div class=\"gpa-box\">\n  GRADE POINT AVERAGE (GPA): {{ $json.Grade }}\n</div>\n\n<div class=\"result-row\">\n  <!-- <div>Result:{{ $json['  Result (Pass/Fail/Distinction)   '] }}    </div> -->\n  <div>Rank:{{ $json['  Rank  '] }} </div>\n  <div>Attendance:{{ $json['  Attendance  '] }} <span> Days</span></div>\n</div>\n\n<div class=\"sign-row\">\n  <div>\n    _______________________<br>\n    Prepared By<br>\n    Exam Department\n  </div>\n  <div>\n    _______________________<br>\n    Checked By<br>\n    Ayushi Joshi\n  </div>\n  <div>\n    _______________________<br>\n    Head Teacher<br>\n    Shubham Dorje\n  </div>\n</div>\n\n<div class=\"footer\">\n  <div><strong>Date of Issue:</strong>{{ $json.issue_date }} </div>\n  <div class=\"note\">\n    <p><strong>Note:</strong></p>\n    <p>One credit hour equals 32 working hours.</p>\n    <p><strong>Internal (IN):</strong> Participation, practical / project work and terminal examinations.</p>\n    <p><strong>Theory (TH):</strong> Written external examination.</p>\n    <p>ABS = Absent, NG = Not Graded</p>\n  </div>\n</div>\n\n</body>\n</html>\n"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        736,
+        -32
+      ],
+      "id": "e3c3fb5a-d4f5-49fc-90e2-a569e4489e74",
+      "name": "HTML"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -80
+      ],
+      "id": "7a09a0e1-2aa1-4a96-8b39-c0091f8de24c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1niZHPtJlTAvAVHIVKMZD2Y_r_p5R5iegkJX4g9U_0lU/edit#gid=491664494",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1niZHPtJlTAvAVHIVKMZD2Y_r_p5R5iegkJX4g9U_0lU/edit#gid=491664494",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        320,
+        -128
+      ],
+      "id": "7e0915a2-f367-42d7-ba9b-2f837934b51a",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ce6tnVLuQnEV2ON1",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "html_content": "={{$json[\"html_content\"]}}\n{{ $json.student_name }}"
+      },
+      "type": "n8n-nodes-htmlcsstopdf.htmlcsstopdf",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        64
+      ],
+      "id": "6ff653ab-4978-4ad6-ba96-fc80c6e9aaad",
+      "name": "HTML to PDF",
+      "alwaysOutputData": true,
+      "credentials": {
+        "htmlcsstopdfApi": {
+          "id": "SHXCjOL2xM8vpRAp",
+          "name": "HTML to PDF account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.pdf_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1328,
+        224
+      ],
+      "id": "17eeda19-2855-4caa-b9e5-b36dc9a9b27e",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -32,
+        -80
+      ],
+      "id": "0834cbbb-f9f5-4bf6-98d5-fc4d0cd24a21",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        208,
+        64
+      ],
+      "id": "dbbc0c56-e5a3-4e75-ae29-2e5b5853191e"
+    },
+    {
+      "parameters": {
+        "name": "=report_{{$itemIndex}}.pdf",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1T1Tf6mbcEHhU31Vm460Ic4IpcywfL6Wl",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1568,
+        48
+      ],
+      "id": "12678204-d8af-40cd-80d4-f39304e7315c",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "jWnipIjHzHhnvdJz",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"student_name\": {{ $('Code in JavaScript').item.json['Student Name '] }}\"\n\"html_content\": \"{{$json['html']}}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        16
+      ],
+      "id": "73b7f809-d8a6-41ae-9d20-fb20210a774b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json['  Parent Email  '] }}",
+        "subject": "=Student Report Card - {{ $('Code in JavaScript').item.json['Student Name '] }}",
+        "emailType": "text",
+        "message": "=Hi , {{ $('Code in JavaScript').item.json['Student Name '] }}'s parent .Here is the report card of your child,{{ $('Code in JavaScript').item.json['Student Name '] }} , for this academic year.  Please find the PDF attached.  Best regards, [Your School / Organization Name]",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "={{ $json.pdf_url }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        -112
+      ],
+      "id": "235aeadd-de21-4006-bb69-7fdd6e21bce8",
+      "name": "Send a message",
+      "webhookId": "6f3fa220-bc3e-4d32-a6f6-bb37a080db60",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ymjcs8o50JTWP4GL",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML to PDF": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTML to PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "016723de-ba1e-4103-a4d3-f4c7e415d085",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6eb08a3d6caf360c201ceaef2367d8548cea7bc800f8e975b9454000b9fecc26"
+  },
+  "id": "1iMWLxilnP1fl5C8",
+  "tags": []
+}
